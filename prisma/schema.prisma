@@ -1,0 +1,223 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AuthType {
+  GOOGLE
+  APPLE
+  FACEBOOK
+  PHONE
+  EMAIL
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  UNKNOWN
+}
+
+enum MenuType {
+  SIDEBAR
+  UPPER
+  USER
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  first_name String? @db.VarChar(100)
+  last_name String? @db.VarChar(100)
+  password String @db.VarChar(250)
+  token String @db.VarChar(250)
+  token_expiry DateTime?
+  photo_url String? @db.VarChar(250)
+  photo_mime_type String? @db.VarChar(25)
+  email String @db.VarChar(250)
+  username String @unique @db.VarChar(250)
+  uid String? @unique @db.VarChar(250)
+  auth_type AuthType?
+  gender Gender?
+  last_login DateTime?
+  phone_number String? @db.VarChar(20)
+  created_at DateTime? @default(now()) 
+  updated_at DateTime?
+  country_id Int?
+  country Country? @relation(fields: [country_id], references: [id])
+  language_id Int?
+  language Language? @relation(fields: [language_id], references: [id])
+  role_id Int? @default(2)
+  role Role? @relation(fields: [role_id], references: [id])
+  organizations Organization[]
+  collaborators_user_parent Collaborators[] @relation("user_parent")
+  collaborators_user_child Collaborators[] @relation("user_child")
+  @@index([email], type: Hash)
+  @@index([username], type: Hash)
+  @@map("users.User")
+}
+  
+model Country {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(100)
+  code String @unique @db.VarChar(10)
+  area_code String @db.VarChar(10)
+  users User[]
+  translations CountryTranslation[]
+  orgnizations Organization[]  @relation("country")
+  orgnizations_billing Organization[]  @relation("billing_country")
+  orgnizations_shipping Organization[]  @relation("shipping_country")
+  @@map("users.Country")
+}
+
+model CountryTranslation {
+  id Int @id @default(autoincrement())
+  country_id Int
+  language_id Int
+  name String @db.VarChar(100)
+  country Country @relation(fields: [country_id], references: [id])
+  language Language @relation(fields: [language_id], references: [id])
+  @@map("users.CountryTranslation")
+}
+
+model Language {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(100)
+  code String @unique @db.VarChar(10)
+  users User[]
+  countries CountryTranslation[]
+  industries IndustryTranslation[]
+  @@map("users.Language")
+} 
+
+model Role {
+  id Int @id
+  name String @db.VarChar(100)
+  users User[]
+  permissions RolePermission[]
+  menu MenuRole[]
+  @@map("users.Role")
+}
+
+model RolePermission {
+  id Int @id @default(autoincrement())
+  role_id Int
+  permission_id Int
+  role Role @relation(fields: [role_id], references: [id])
+  permission Permission @relation(fields: [permission_id], references: [id])
+  Section_id Int
+  section Section @relation(fields: [Section_id], references: [id])
+  @@map("users.RolePermission")
+}
+
+model Permission {
+  id Int @id 
+  name String @db.VarChar(20)
+  key String @unique @db.VarChar(20)
+  roles RolePermission[]
+  @@map("users.Permission")
+}
+
+model Section {
+  id Int @id
+  name String @db.VarChar(100)
+  code String @unique @db.VarChar(20)
+  permissions RolePermission[]
+  @@map("users.Section")
+}
+
+model MenuRole {
+  id Int @id @default(autoincrement())
+  role_id Int
+  role Role @relation(fields: [role_id], references: [id])
+  menu_id Int
+  menu Menu @relation(fields: [menu_id], references: [id])
+  @@map("users.MenuRole")
+}
+
+model Menu {
+  id Int @id
+  name String @db.VarChar(100)
+  type MenuType
+  visible Boolean @default(true)
+  lang_code String
+  parent Int?
+  icon String? @db.VarChar(100)
+  template String? @db.VarChar(50)
+  page String? @default("")
+  position Int?
+  role MenuRole[]
+  @@map("users.Menu")
+}
+
+model Organization {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(100)
+  organization_id String? @db.VarChar(250)
+  email String? @db.VarChar(500)
+  website String? @db.VarChar(250)
+  phone_number String? @db.VarChar(20)
+  phone_number_alt String? @db.VarChar(20)
+  contact_name String? @db.VarChar(250)
+  country_id Int?
+  country Country? @relation(fields: [country_id], references: [id], name: "country")
+  industry_id Int?
+  industry Industry? @relation(fields: [industry_id], references: [id])
+  billing_address_1 String? @db.VarChar(500)
+  billing_address_2 String? @db.VarChar(500)
+  billing_postal_code String? @db.VarChar(10)
+  billing_city String? @db.VarChar(100)
+  billing_state String? @db.VarChar(100)
+  billing_contact_name String? @db.VarChar(250)
+  billing_country_id Int?
+  billing_country Country? @relation(fields: [billing_country_id], references: [id], name: "billing_country")
+  shipping_address_1 String? @db.VarChar(500)
+  shipping_address_2 String? @db.VarChar(500)
+  shipping_postal_code String? @db.VarChar(10)
+  shipping_city String? @db.VarChar(100)
+  shipping_state String? @db.VarChar(100)
+  shipping_contact_name String? @db.VarChar(250)
+  shipping_country_id Int?
+  shipping_country Country? @relation(fields: [shipping_country_id], references: [id], name: "shipping_country")
+  created_at DateTime? @default(now())
+  user_id Int?
+  user User? @relation(fields: [user_id], references: [id])
+  @@map("users.Organization")
+}
+
+model Industry {
+  id Int @id
+  name String @db.VarChar(100)
+  organizations Organization[]
+  industry_translation IndustryTranslation[]
+  @@map("users.Industry")
+}
+
+model IndustryTranslation {
+  id Int @id @default(autoincrement())
+  industry_id Int
+  language_id Int
+  name String @db.VarChar(100)
+  industry Industry @relation(fields: [industry_id], references: [id])
+  language Language @relation(fields: [language_id], references: [id])
+  @@map("users.IndustryTranslation")
+}
+
+
+model Collaborators {
+  id Int @id @default(autoincrement())
+  user_parent_id Int?
+  user_parent User? @relation(fields: [user_parent_id], references: [id], name: "user_parent")
+  user_child_id Int?
+  user_child User? @relation(fields: [user_child_id], references: [id], name: "user_child")
+  @@map("users.Collaborators")
+}

@@ -1,0 +1,95 @@
+type App {
+    name: String
+    version: String
+}
+
+type User {
+    id: Int!
+    uid: String!
+    email: String!
+    token: String
+    firstName: String!
+    lastName: String
+    photoUrl: String
+    phoneNumber: String
+    authType: String
+    lastLogin: String
+    gender: String
+    createdAt: String
+    updatedAt: String
+    areaCode: String
+    language: String
+    countryCode: String
+    username: String
+}
+
+type Country {
+    id: Int!
+    name: String!
+    code: String!
+    areaCode: String!
+}
+
+type Permission {
+    permission: PermissionKey
+    section: Section
+}
+
+type PermissionKey {
+    key: String
+}
+
+type Section {
+    code: String
+}
+
+type Menu {
+    id: Int!
+    name: String!,
+    visible: Boolean!,
+    type: String!,
+    lang_code: String!,
+    icon: String,
+    template: String,
+    parent: Int
+    page: String!
+    position: Int
+}
+
+type Role {
+    id: Int
+    name: String
+    menu: [Menu!]
+    permissions: [Permission!]
+}
+
+type UserRole {
+    username: String!
+    role: Role
+}
+
+type BasicResult{
+    success: Boolean!
+    message: String
+}
+
+type Query {
+    getApp: App
+    getUserInfo(username: String!): User 
+    getAllUserInfo(username: String!): User
+    getCountries(code: String!): [Country]
+    getRoleData(username: String!): UserRole
+    getUsername(username: String!): User
+    loginUser(username: String!, password: String!): User
+    validateToken(username: String!, token: String!): Boolean!
+    getUserByToken(token: String!): User
+}
+
+type Mutation {
+    setSample(name: String!): Boolean!
+    setUser(username: String!, fName: String!, lName: String, countryCode: String, phoneNumber: String, gender: String, languageCode: String!): Boolean!
+    setPicture(username: String!, url: String!, mime: String!): User!
+    setUsername(username: String!, newUsername: String!): Boolean!
+    createUser(username: String!, email: String!, password: String!): BasicResult!
+    changePassword(username: String!, oldPassword: String!, newPassword: String!): BasicResult!
+}
