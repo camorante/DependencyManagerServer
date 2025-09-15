@@ -73,6 +73,22 @@ type BasicResult{
     message: String
 }
 
+type Dependency {
+    id: Int!
+    title: String!
+    team: String!
+    area: String
+    state: String
+    iterationPath: String
+    assignedTo: String
+    created_at: String
+    updated_at: String
+    expiration_date: String
+    type: String
+    description: String
+    user_id: Int
+}
+
 type Query {
     getApp: App
     getUserInfo(username: String!): User 
@@ -83,6 +99,7 @@ type Query {
     loginUser(username: String!, password: String!): User
     validateToken(username: String!, token: String!): Boolean!
     getUserByToken(token: String!): User
+    getDependencies(start_date: String!, end_date: String!): [Dependency]
 }
 
 type Mutation {

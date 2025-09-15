@@ -34,6 +34,11 @@ enum MenuType {
   USER
 }
 
+enum DependencyType {
+  INCOMING
+  OUTGOING
+}
+
 model User {
   id Int @id @default(autoincrement())
   first_name String? @db.VarChar(100)
@@ -61,6 +66,7 @@ model User {
   organizations Organization[]
   collaborators_user_parent Collaborators[] @relation("user_parent")
   collaborators_user_child Collaborators[] @relation("user_child")
+  dependencies Dependencies[]
   @@index([email], type: Hash)
   @@index([username], type: Hash)
   @@map("users.User")
@@ -220,4 +226,23 @@ model Collaborators {
   user_child_id Int?
   user_child User? @relation(fields: [user_child_id], references: [id], name: "user_child")
   @@map("users.Collaborators")
+}
+
+model Dependencies {
+  id Int @id
+  title String @db.VarChar(500)
+  team String @db.VarChar(250)
+  area String? @db.VarChar(250)
+  state String? @db.VarChar(50)
+  iterationPath String? @db.VarChar(250)
+  assignedTo String? @db.VarChar(250)
+  assignedToEmail String? @db.VarChar(250)
+  created_at DateTime? @default(now())
+  updated_at DateTime?
+  expiration_date DateTime?
+  type DependencyType
+  description String? @db.Text
+  user_id Int?
+  user_creator User? @relation(fields: [user_id], references: [id])
+  @@map("users.Dependency")
 }

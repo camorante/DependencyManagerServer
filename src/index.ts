@@ -27,12 +27,12 @@ import { fileURLToPath } from 'node:url';
 const app = express();
 
 //credenciales de firebase
-var serviceAccount = readFileSync(new URL('./credentials/lotusy-dev-firebase-adminsdk.json', import.meta.url))
+//var serviceAccount = readFileSync(new URL('./credentials/lotusy-dev-firebase-adminsdk.json', import.meta.url))
 
 //inicializar firebase
-admin.initializeApp({
-  credential: admin.credential.cert(JSON.parse(serviceAccount.toString()))
-});
+// admin.initializeApp({
+//   credential: admin.credential.cert(JSON.parse(serviceAccount.toString()))
+// });
 
 //server http
 const httpServer = http.createServer(app);

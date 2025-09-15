@@ -335,11 +335,26 @@ async function validateTokenResolver(parent, args, context) : Promise<any> {
                 isValid = true;
             }
 
+            if(isValid){
+                let expiryDate = new Date();
+                expiryDate.setHours(expiryDate.getHours() + 168); // Token valido por 7 dias
+                await context.db.user.update({
+                    data: {
+                        token_expiry: expiryDate,
+                        last_login: new Date()
+                    },
+                    where: {
+                        username: userData?.username
+                    }
+                });
+            }
             result = {
                 isValid: isValid,
                 token: userData?.token ?? "",
                 username: userData?.username ?? ""
             }
+
+
         }
     } 
     catch (error) {
